@@ -100,7 +100,7 @@ export function createProductHandler({ store, staticRoot, publicConfig = { mode:
           response.writeHead(302, { location: '/connections.html?google=error' }); return response.end()
         }
         await googleDrive.callback({ code: url.searchParams.get('code'), state: url.searchParams.get('state') })
-        response.writeHead(302, { location: '/connections.html?google=connected' }); return response.end()
+        response.writeHead(302, { location: '/onboarding.html?google=connected' }); return response.end()
       }
       if (url.pathname.startsWith('/api/connections/google') || url.pathname === '/api/drive/files') {
         if (!googleDrive) return sendJson(response, 503, { error: 'Google Drive is not configured' })

@@ -21,8 +21,8 @@ try {
   const config = await loadRuntimeConfig()
   if (config.mode === 'development') location.replace('./index.html')
   auth = createAuthClient({ url: config.supabaseUrl, anonKey: config.supabaseAnonKey, storage: localStorage, createClientImpl: globalThis.supabase?.createClient })
-  const session = await auth.initialize((_event, nextSession) => { if (nextSession) location.replace('./index.html') })
-  if (session) location.replace('./index.html')
+  const session = await auth.initialize((_event, nextSession) => { if (nextSession) location.replace('./onboarding.html') })
+  if (session) location.replace('./onboarding.html')
 } catch (error) {
   console.error('Authentication initialization failed', error)
   showRetry('לא הצלחנו לטעון את החיבור או להכין את החשבון.')

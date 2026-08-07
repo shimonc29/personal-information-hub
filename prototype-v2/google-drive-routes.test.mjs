@@ -40,5 +40,5 @@ test('OAuth callback rejects Google errors and redirects successful exchange', a
   assert.match(denied.headers.get('location'), /connections\.html\?google=error/)
   const success = await fetch(`${base}/api/connections/google/callback?code=code&state=state`, { redirect: 'manual' })
   assert.equal(success.status, 302)
-  assert.match(success.headers.get('location'), /connections\.html\?google=connected/)
+  assert.match(success.headers.get('location'), /onboarding\.html\?google=connected/)
 })

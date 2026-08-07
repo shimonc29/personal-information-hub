@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>מתחילים — המרכז האישי</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="onboarding-page">
+  <main class="onboarding-shell">
+    <header class="onboarding-header">
+      <a class="brand onboarding-brand" href="./index.html"><span class="brand__mark">מ</span><span><strong>המרכז האישי</strong><small>המידע שלך, סוף סוף מסודר</small></span></a>
+      <a class="onboarding-skip" href="./index.html">מעבר למרכז האישי</a>
+    </header>
+
+    <section class="onboarding-hero" aria-labelledby="onboarding-title">
+      <div>
+        <p class="eyebrow"><span></span>שלוש דקות להתחלה מסודרת</p>
+        <h1 id="onboarding-title">בוא נעשה סדר<br><em>בלי להזיז אף קובץ.</em></h1>
+        <p>נחבר את Google Drive לקריאה בלבד, נבין מה יש בו וניצור עבורך שכבת סדר אישית.</p>
+      </div>
+      <div class="onboarding-orbit" aria-hidden="true"><span>Drive</span><i></i><b>שלך</b></div>
+    </section>
+
+    <section class="onboarding-progress" data-onboarding-progress aria-live="polite">
+      <div class="onboarding-progress__label"><strong data-progress-label>בודקים איפה מתחילים…</strong><span data-progress-count>0 מתוך 3</span></div>
+      <div class="onboarding-progress__track"><i data-progress-bar></i></div>
+    </section>
+
+    <section class="onboarding-steps" aria-label="שלבי ההתחלה">
+      <article class="onboarding-step" data-onboarding-connect>
+        <div class="onboarding-step__number">1</div><div class="onboarding-step__copy"><span>חיבור מאובטח</span><h2>מחברים את ה‑Drive</h2><p>צפייה בלבד. לא נזיז, נשנה או נמחק קבצים.</p></div>
+        <button class="primary-button" type="button" data-connect-action>חיבור Google Drive</button><span class="onboarding-check" aria-hidden="true">✓</span>
+      </article>
+      <article class="onboarding-step" data-onboarding-scan>
+        <div class="onboarding-step__number">2</div><div class="onboarding-step__copy"><span>תמונה ראשונה</span><h2>מבינים מה יש לך</h2><p data-scan-copy>נספור סוגי קבצים ונזהה מה מחכה לסדר.</p></div>
+        <a class="secondary-button" href="./documents.html">הצגת הסריקה</a><span class="onboarding-check" aria-hidden="true">✓</span>
+      </article>
+      <article class="onboarding-step" data-onboarding-organize>
+        <div class="onboarding-step__number">3</div><div class="onboarding-step__copy"><span>הסדר שלך</span><h2>יוצרים אזור מידע ראשון</h2><p data-area-copy>משפחה, כספים, לימודים או כל תחום שמתאים לחיים שלך.</p></div>
+        <a class="secondary-button" href="./areas.html">יצירת אזור מידע</a><span class="onboarding-check" aria-hidden="true">✓</span>
+      </article>
+    </section>
+
+    <section class="onboarding-ready" data-onboarding-ready hidden aria-live="polite">
+      <span>✓</span><div><p class="eyebrow">הכול מוכן</p><h2>המרכז האישי שלך מחובר</h2><p>אפשר להתחיל לעבוד עם המסמכים, האזורים והפרויקטים במקום אחד.</p></div><a class="primary-button" href="./index.html">כניסה למרכז האישי</a>
+    </section>
+    <p class="onboarding-error" data-onboarding-error role="alert"></p>
+  </main>
+  <script type="module" src="./onboarding-app.mjs"></script>
+</body>
+</html>
