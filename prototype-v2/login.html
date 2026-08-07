@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>כניסה — המרכז האישי</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-card">
+      <span class="brand__mark" aria-hidden="true">מ</span>
+      <p class="eyebrow">המרכז האישי</p>
+      <h1>כניסה מאובטחת</h1>
+      <p>נשלח אליך קישור חד־פעמי. אין צורך בסיסמה.</p>
+      <form data-login-form class="auth-form">
+        <label for="email">כתובת אימייל</label>
+        <input id="email" name="email" type="email" autocomplete="email" required placeholder="name@example.com" />
+        <button class="primary-button" type="submit">שלחו לי קישור כניסה</button>
+      </form>
+      <p data-login-status class="auth-status" role="status" aria-live="polite"></p>
+    </main>
+    <script src="./vendor/supabase.js"></script>
+    <script type="module" src="./login-app.mjs"></script>
+  </body>
+</html>

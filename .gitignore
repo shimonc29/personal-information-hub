@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.npm-cache/
+coverage/
+*.log
+*.local
+.env
+.env.*
+!.env.example
+!.env.product.example
+prototype-v2/data/
+prototype-v2/.verification/

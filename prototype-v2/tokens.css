@@ -1,0 +1,31 @@
+:root {
+  color-scheme: light;
+  --font-display: "Rubik", "Heebo", sans-serif;
+  --font-body: "Rubik", "Assistant", sans-serif;
+  --color-canvas: #f4f6f2;
+  --color-surface: #ffffff;
+  --color-surface-soft: #eef1ec;
+  --color-surface-strong: #17211c;
+  --color-ink: #17211c;
+  --color-ink-muted: #68736c;
+  --color-line: #dfe5df;
+  --color-primary: #3136a8;
+  --color-primary-hover: #252a8f;
+  --color-primary-soft: #ececff;
+  --color-accent: #b7f34a;
+  --color-accent-strong: #8dc824;
+  --color-danger: #d64b56;
+  --color-warning: #d98024;
+  --color-success: #21865b;
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(23 33 28 / 5%), 0 8px 24px rgb(23 33 28 / 6%);
+  --shadow-md: 0 18px 50px rgb(23 33 28 / 10%);
+  --shadow-focus: 0 0 0 4px rgb(49 54 168 / 18%);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-normal: 260ms;
+}

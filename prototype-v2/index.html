@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f6f2" />
+    <meta name="description" content="מרכז מידע אישי חכם" />
+    <title>מרכז אישי חכם — דשבורד</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="ניווט ראשי">
+        <a class="brand" href="#dashboard" aria-label="המרכז האישי — ראשי">
+          <span class="brand__mark" aria-hidden="true">מ</span>
+          <span><strong>המרכז האישי</strong><small>הכול מתחבר כאן</small></span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="ניווט ראשי">
+          <a class="nav-item is-active" href="#dashboard"><span>⌂</span>ראשי</a>
+          <a class="nav-item" href="./areas.html"><span>◎</span>אזורי מידע</a>
+          <a class="nav-item" href="./projects.html"><span>◇</span>פרויקטים</a>
+          <a class="nav-item" href="./documents.html"><span>▤</span>מסמכים</a>
+          <a class="nav-item" href="./tasks.html"><span>✓</span>משימות <b>5</b></a>
+          <a class="nav-item" href="#people"><span>♙</span>אנשים וארגונים</a>
+          <a class="nav-item" href="#timeline"><span>◷</span>ציר זמן</a>
+          <a class="nav-item" href="#alerts"><span>◉</span>התראות <i></i></a>
+          <hr />
+          <a class="nav-item" href="#search"><span>⌕</span>חיפוש חכם</a>
+          <a class="nav-item nav-item--ai" href="#ask"><span>✦</span>שאל את המידע שלי</a>
+        </nav>
+
+        <div class="sidebar__footer">
+          <a class="nav-item" href="./connections.html"><span>⌁</span>חיבורים</a>
+          <a class="nav-item" href="#settings"><span>⚙</span>הגדרות</a>
+          <div class="profile-card">
+            <span class="avatar">שכ</span>
+            <span><strong>שמעון כהן</strong><small>חשבון אישי</small></span>
+            <button aria-label="פתיחת תפריט פרופיל">•••</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content" id="dashboard">
+        <header class="topbar">
+          <button class="round-button mobile-menu" aria-label="פתיחת תפריט">☰</button>
+          <label class="global-search">
+            <span aria-hidden="true">⌕</span>
+            <span class="sr-only">חיפוש גלובלי</span>
+            <input type="search" placeholder="חיפוש מהיר בכל המידע שלך" />
+            <kbd>⌘ K</kbd>
+          </label>
+          <div class="topbar__actions">
+            <button class="primary-button"><span>＋</span> הוסף חדש</button>
+            <button class="round-button notification-button" aria-label="התראות"><span></span>◉</button>
+          </div>
+        </header>
+
+        <div class="page-wrap">
+          <section class="welcome-row" aria-labelledby="welcome-heading">
+            <div>
+              <p class="eyebrow"><span></span> יום ראשון, 2 באוגוסט</p>
+              <h1 id="welcome-heading">ערב טוב, שמעון</h1>
+              <p>סידרנו עבורך את הדברים שכדאי לשים לב אליהם היום.</p>
+            </div>
+            <button class="sync-button"><span aria-hidden="true">↻</span> סנכרון אחרון: לפני 12 דקות</button>
+          </section>
+
+          <section class="ai-hero" aria-labelledby="ai-heading">
+            <div class="ai-hero__glow ai-hero__glow--one"></div>
+            <div class="ai-hero__glow ai-hero__glow--two"></div>
+            <div class="ai-hero__copy">
+              <span class="ai-spark" aria-hidden="true">✦</span>
+              <div>
+                <p class="eyebrow eyebrow--light">העוזר האישי שלך</p>
+                <h2 id="ai-heading">מה תרצה לדעת?</h2>
+                <p>אפשר לשאול בשפה חופשית. אני אחפש, אחבר ואציג את המקורות.</p>
+              </div>
+            </div>
+            <form class="ask-bar" id="ask-form">
+              <label class="sr-only" for="ask-input">שאל את המידע שלך</label>
+              <input id="ask-input" placeholder="למשל: אילו לקוחות עדיין מחכים ממני למענה?" />
+              <button type="submit">שלח <span aria-hidden="true">←</span></button>
+            </form>
+            <div class="prompt-chips" aria-label="שאלות מוצעות">
+              <button>מה דורש טיפול השבוע?</button>
+              <button>מצא את הצעת המחיר האחרונה לאקים</button>
+              <button>אילו משימות באיחור?</button>
+            </div>
+          </section>
+
+          <section aria-labelledby="attention-heading">
+            <div class="section-heading">
+              <div><p class="eyebrow">תשומת לב</p><h2 id="attention-heading">מה דורש טיפול</h2></div>
+              <a href="#alerts">לכל ההתראות <span>←</span></a>
+            </div>
+            <div class="attention-grid">
+              <article class="metric-card metric-card--coral">
+                <div class="metric-card__top"><span class="metric-icon">₪</span><span class="trend">עברו 7+ ימים</span></div>
+                <strong data-counter="unansweredQuotes">3</strong>
+                <h3>הצעות ללא מענה</h3>
+                <p>כדאי ליצור משימות מעקב</p>
+                <a href="#akim-project">בדיקה וטיפול <span>←</span></a>
+              </article>
+              <article class="metric-card metric-card--amber">
+                <div class="metric-card__top"><span class="metric-icon">✓</span><span class="trend">2 בעדיפות גבוהה</span></div>
+                <strong>5</strong><h3>משימות באיחור</h3><p>הוותיקה ביותר מלפני 4 ימים</p>
+                <a href="./tasks.html">הצג משימות <span>←</span></a>
+              </article>
+              <article class="metric-card metric-card--violet">
+                <div class="metric-card__top"><span class="metric-icon">▤</span><span class="trend">נוספו היום</span></div>
+                <strong>2</strong><h3>מסמכים לא מסווגים</h3><p>ממתינים לשיוך לפרויקט</p>
+                <a href="./documents.html">סיווג מהיר <span>←</span></a>
+              </article>
+            </div>
+          </section>
+
+          <section class="dashboard-areas" aria-labelledby="dashboard-areas-heading">
+            <div class="section-heading">
+              <div><p class="eyebrow">הסדר האישי שלך</p><h2 id="dashboard-areas-heading">אזורי המידע שלי <span class="area-count" data-dashboard-area-count>—</span></h2><p class="section-subtitle">התחומים שיצרת מופיעים כאן ומתעדכנים מהחשבון שלך.</p></div>
+              <a href="./areas.html">ניהול אזורים <span>←</span></a>
+            </div>
+            <div class="dashboard-area-grid" data-dashboard-areas aria-live="polite"><p class="task-empty">טוען את אזורי המידע…</p></div>
+          </section>
+
+          <section class="drive-insights" data-drive-insights aria-labelledby="drive-insights-heading">
+            <div class="section-heading">
+              <div><p class="eyebrow">תמונת המידע שלך</p><h2 id="drive-insights-heading">סדר ב־Drive</h2><p class="section-subtitle">מבט חי על הקבצים שלך והזדמנויות לעשות סדר.</p></div>
+              <a href="./documents.html">פתיחת מרכז המסמכים <span>←</span></a>
+            </div>
+            <div class="drive-overview panel">
+              <div class="drive-overview__total"><span>Google Drive</span><strong data-drive-total>—</strong><small>קבצים ותיקיות נסרקו</small></div>
+              <div class="drive-kind-grid">
+                <article><span class="drive-kind-icon drive-kind-icon--blue">D</span><div><strong data-drive-count="documents">—</strong><small>מסמכים ו־Word</small></div></article>
+                <article><span class="drive-kind-icon drive-kind-icon--green">S</span><div><strong data-drive-count="sheets">—</strong><small>גיליונות ו־Excel</small></div></article>
+                <article><span class="drive-kind-icon drive-kind-icon--violet">F</span><div><strong data-drive-count="forms">—</strong><small>טפסים</small></div></article>
+                <article><span class="drive-kind-icon drive-kind-icon--coral">◉</span><div><strong data-drive-count="images">—</strong><small>תמונות</small></div></article>
+                <article><span class="drive-kind-icon drive-kind-icon--amber">PDF</span><div><strong data-drive-count="pdf">—</strong><small>קובצי PDF</small></div></article>
+                <article><span class="drive-kind-icon">▰</span><div><strong data-drive-count="folders">—</strong><small>תיקיות</small></div></article>
+              </div>
+            </div>
+            <div class="drive-cleanup-grid" data-drive-cleanup aria-live="polite">
+              <article><span>◷</span><div><strong data-drive-stale>—</strong><p>קבצים שלא עודכנו מעל שנה</p></div><a href="./documents.html?insight=stale">בדיקה</a></article>
+              <article><span>≋</span><div><strong data-drive-duplicates>—</strong><p>קבוצות עם שמות זהים</p></div><a href="./documents.html?insight=duplicates">בדיקה</a></article>
+              <article><span>⇧</span><div><strong data-drive-large>—</strong><p>קבצים גדולים מ־50MB</p></div><a href="./documents.html?insight=large">בדיקה</a></article>
+            </div>
+            <p class="drive-insights__status" data-drive-insights-status role="status">טוען תמונת מצב מה־Drive…</p>
+          </section>
+
+          <section aria-labelledby="projects-heading">
+            <div class="section-heading">
+              <div><p class="eyebrow">בתנועה עכשיו</p><h2 id="projects-heading">פרויקטים פעילים</h2></div>
+              <a href="./projects.html">לכל הפרויקטים <span>←</span></a>
+            </div>
+            <div class="project-grid">
+              <article class="project-card project-card--featured" id="akim-project">
+                <div class="project-card__header"><span class="project-icon">א</span><span class="status-pill status-pill--waiting">ממתין לאישור</span></div>
+                <h3>סדנת AI לאקים</h3>
+                <p>אקים ישראל · הדרכה ופיתוח</p>
+                <div class="project-stats"><span>▤ 8 מסמכים</span><span>♙ 3 אנשי קשר</span><span>✓ 2 משימות</span></div>
+                <div class="next-action">
+                  <div><span>הפעולה המומלצת</span><strong>לחזור ללקוח בנוגע להצעה</strong><small>ההצעה נשלחה לפני 8 ימים</small></div>
+                  <button data-action="create-follow-up" aria-label="צור משימת מעקב">＋</button>
+                </div>
+                <a class="card-link" href="./project-akim.html">פתיחת הפרויקט <span>←</span></a>
+              </article>
+              <article class="project-card">
+                <div class="project-card__header"><span class="project-icon project-icon--blue">מ</span><span class="status-pill status-pill--planning">בתכנון</span></div>
+                <h3>מערכת מורשת גדוד 184</h3><p>תיעוד ושימור מורשת</p>
+                <div class="project-stats"><span>▤ 17 מסמכים</span><span>♙ 4 אנשי קשר</span><span>✓ 6 משימות</span></div>
+                <div class="next-action next-action--plain"><div><span>המשימה הבאה</span><strong>עדכון מסמך האפיון</strong><small>לביצוע עד יום שלישי</small></div></div>
+                <a class="card-link" href="#project-detail">פתיחת הפרויקט <span>←</span></a>
+              </article>
+              <article class="project-card">
+                <div class="project-card__header"><span class="project-icon project-icon--green">א</span><span class="status-pill status-pill--active">מתקדם</span></div>
+                <h3>אריאל גינון</h3><p>נוכחות דיגיטלית</p>
+                <div class="project-stats"><span>▤ 11 מסמכים</span><span>♙ 2 אנשי קשר</span><span>✓ 3 משימות</span></div>
+                <div class="next-action next-action--plain"><div><span>המשימה הבאה</span><strong>שליחת דף ההדגמה</strong><small>מוכן לשליחה</small></div></div>
+                <a class="card-link" href="#project-detail">פתיחת הפרויקט <span>←</span></a>
+              </article>
+            </div>
+          </section>
+
+          <section class="lower-grid">
+            <article class="panel" aria-labelledby="week-heading">
+              <div class="section-heading section-heading--compact"><div><p class="eyebrow">מבט קדימה</p><h2 id="week-heading">השבוע הקרוב</h2></div><button class="mini-button">לוח שנה</button></div>
+              <div class="agenda-list">
+                <div class="agenda-item"><time><strong>3</strong><small>אוג׳</small></time><span class="agenda-dot agenda-dot--blue"></span><div><strong>פגישה עם לקוח</strong><small>10:00 · Zoom</small></div><button aria-label="פתיחת פגישה">←</button></div>
+                <div class="agenda-item"><time><strong>4</strong><small>אוג׳</small></time><span class="agenda-dot agenda-dot--amber"></span><div><strong>שליחת הצעת מחיר</strong><small>פרויקט אקים</small></div><button aria-label="פתיחת משימה">←</button></div>
+                <div class="agenda-item"><time><strong>6</strong><small>אוג׳</small></time><span class="agenda-dot agenda-dot--green"></span><div><strong>תשלום משכנתה</strong><small>משימה אישית</small></div><button aria-label="פתיחת משימה">←</button></div>
+              </div>
+            </article>
+            <article class="panel" aria-labelledby="new-heading">
+              <div class="section-heading section-heading--compact"><div><p class="eyebrow">עדכונים</p><h2 id="new-heading">מה חדש</h2></div><button class="mini-button">הכול</button></div>
+              <div class="activity-list">
+                <div><span class="activity-icon">▤</span><p><strong>נוסף מסמך חדש</strong><small>הצעת מחיר מעודכנת · לפני שעה</small></p></div>
+                <div><span class="activity-icon activity-icon--violet">◇</span><p><strong>עודכנה תיקיית פרויקט</strong><small>מערכת מורשת 184 · היום</small></p></div>
+                <div><span class="activity-icon activity-icon--green">✓</span><p><strong>נוצרה משימה חדשה</strong><small>לחזור לאריאל · אתמול</small></p></div>
+              </div>
+            </article>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="ניווט נייד">
+      <a class="is-active" href="./index.html"><span>⌂</span>ראשי</a><a href="./projects.html"><span>◇</span>פרויקטים</a><button aria-label="הוסף חדש">＋</button><a href="./tasks.html"><span>✓</span>משימות</a><a href="#search"><span>⌕</span>חיפוש</a>
+    </nav>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="./vendor/supabase.js"></script>
+    <script type="module" src="./session-guard.mjs"></script>
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>

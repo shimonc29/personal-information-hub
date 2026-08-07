@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "vendor:sync": "node scripts/sync-supabase-vendor.mjs",
+    "vendor:check": "node scripts/sync-supabase-vendor.mjs --check",
+    "test": "node --test *.test.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.110.8"
+  }
+}
