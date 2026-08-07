@@ -87,7 +87,9 @@ export function createProductHandler({ store, staticRoot, publicConfig = { mode:
       }
       if (request.method === 'GET' && url.pathname === '/api/config') {
         if (publicConfig.mode === 'development' && !publicConfig.supabaseUrl) return sendJson(response, 200, { mode: 'development' })
-        const browserOrigin = `http://${request.headers.host}`
+        const forwardedProtocol = String(request.headers['x-forwarded-proto'] ?? '').split(',')[0].trim().toLowerCase()
+        const protocol = forwardedProtocol === 'https' || request.socket?.encrypted ? 'https' : 'http'
+        const browserOrigin = `${protocol}://${request.headers.host}`
         return sendJson(response, 200, { supabaseUrl: `${browserOrigin}/supabase`, supabaseAnonKey: publicConfig.supabaseAnonKey })
       }
       if (url.pathname === '/api/connections/google/callback') {

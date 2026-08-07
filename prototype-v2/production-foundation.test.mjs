@@ -204,6 +204,9 @@ test('server exposes only public runtime configuration', async (context) => {
   const response = await fetch(`http://127.0.0.1:${server.address().port}/api/config`)
   const config = await response.json()
   assert.deepEqual(config, { supabaseUrl: `http://127.0.0.1:${server.address().port}/supabase`, supabaseAnonKey: 'public-key' })
+  const forwardedResponse = await fetch(`http://127.0.0.1:${server.address().port}/api/config`, { headers: { 'x-forwarded-proto': 'https' } })
+  const forwardedConfig = await forwardedResponse.json()
+  assert.deepEqual(forwardedConfig, { supabaseUrl: `https://127.0.0.1:${server.address().port}/supabase`, supabaseAnonKey: 'public-key' })
 })
 
 test('local Supabase proxy forwards only approved API paths without browser cookies', async (context) => {
