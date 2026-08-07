@@ -15,8 +15,10 @@ test('Vercel entrypoint serves the same authenticated product and bundles public
   ])
   assert.match(entrypoint, /createProductHandler/)
   assert.match(entrypoint, /export default/)
-  assert.equal(config.rewrites[0].destination, '/api/index')
-  assert.match(config.functions['api/index.mjs'].includeFiles, /prototype-v2/)
+  assert.equal(config.builds[0].src, 'api/index.mjs')
+  assert.equal(config.builds[0].use, '@vercel/node')
+  assert.ok(config.builds[0].config.includeFiles.includes('prototype-v2/**'))
+  assert.equal(config.routes[0].dest, '/api/index.mjs')
   assert.equal(config.framework, null)
 })
 

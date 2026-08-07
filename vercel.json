@@ -2,13 +2,17 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "npm --prefix prototype-v2 ci",
-  "rewrites": [
-    { "source": "/:path*", "destination": "/api/index" }
-  ],
-  "functions": {
-    "api/index.mjs": {
-      "includeFiles": "prototype-v2/**",
-      "maxDuration": 30
+  "builds": [
+    {
+      "src": "api/index.mjs",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["prototype-v2/**"],
+        "maxDuration": 30
+      }
     }
-  }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.mjs" }
+  ]
 }
