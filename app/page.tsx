@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { fetchAllDriveFiles, toDocument } from "@/lib/drive-client.mjs";
 
 const navigationTargets: Record<string, string> = { "בית": "top", "יועץ AI": "ai-advisor", "פרויקטים": "projects", "מסמכים": "documents" };
+type Project = { id: string; name: string; description: string; parentProjectId: string };
 
 export default function Home() {
   const [active, setActive] = useState("בית");
@@ -21,11 +22,13 @@ export default function Home() {
   const [driveConnected, setDriveConnected] = useState(false);
   const [driveLoading, setDriveLoading] = useState(false);
   const [accessToken, setAccessToken] = useState("");
-  const [projects, setProjects] = useState<{ id: string; name: string; description: string }[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [assignments, setAssignments] = useState<Record<string, string>>({});
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
+  const [projectParentId, setProjectParentId] = useState("");
+  const [editingProjectId, setEditingProjectId] = useState("");
   const [projectSaving, setProjectSaving] = useState(false);
   const [suggestions, setSuggestions] = useState<{ fileId: string; projectId: string; reason: string }[]>([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
@@ -35,6 +38,10 @@ export default function Home() {
     `${d.title} ${d.type} ${d.project} ${d.person}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
   ), [query, visibleDocuments]);
   const today = new Date().toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long" });
+  const orderedProjects = useMemo(() => {
+    const roots = projects.filter((project) => !project.parentProjectId || !projects.some((item) => item.id === project.parentProjectId));
+    return roots.flatMap((root) => [root, ...projects.filter((project) => project.parentProjectId === root.id)]);
+  }, [projects]);
 
   useEffect(() => {
     let cancelled = false;
@@ -133,13 +140,28 @@ export default function Home() {
     } finally { setAdvisorLoading(false); }
   };
 
+  const openProjectForm = (project?: Project, parentProjectId = "") => {
+    setEditingProjectId(project?.id ?? ""); setProjectName(project?.name ?? ""); setProjectDescription(project?.description ?? ""); setProjectParentId(project?.parentProjectId ?? parentProjectId); setShowProjectForm(true);
+  };
+
   const createProject = async (event: React.FormEvent) => {
     event.preventDefault(); if (!accessToken || projectSaving) return; setProjectSaving(true);
     try {
-      const response = await fetch("/api/projects", { method: "POST", headers: { Authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, body: JSON.stringify({ name: projectName, description: projectDescription }) });
+      const response = await fetch("/api/projects", { method: editingProjectId ? "PATCH" : "POST", headers: { Authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, body: JSON.stringify({ id: editingProjectId || undefined, name: projectName, description: projectDescription, parentProjectId: projectParentId }) });
       const result = await response.json(); if (!response.ok) throw new Error(result.error);
-      setProjects((items) => [result.project, ...items]); setProjectName(""); setProjectDescription(""); setShowProjectForm(false); setConnectionMessage("הפרויקט נוצר.");
-    } catch { setConnectionMessage("לא הצלחנו ליצור את הפרויקט."); } finally { setProjectSaving(false); }
+      setProjects((items) => editingProjectId ? items.map((item) => item.id === editingProjectId ? result.project : item) : [result.project, ...items]); setProjectName(""); setProjectDescription(""); setProjectParentId(""); setEditingProjectId(""); setShowProjectForm(false); setConnectionMessage(editingProjectId ? "הפרויקט עודכן." : "הפרויקט נוצר.");
+    } catch { setConnectionMessage("לא הצלחנו לשמור את הפרויקט."); } finally { setProjectSaving(false); }
+  };
+
+  const removeProject = async (project: Project) => {
+    if (!accessToken || !confirm(`למחוק את הפרויקט „${project.name}”? המסמכים ב־Drive לא יימחקו.`)) return;
+    try {
+      const response = await fetch("/api/projects", { method: "DELETE", headers: { Authorization: `Bearer ${accessToken}`, "content-type": "application/json" }, body: JSON.stringify({ id: project.id }) });
+      if (!response.ok) throw new Error();
+      setProjects((items) => items.filter((item) => item.id !== project.id).map((item) => item.parentProjectId === project.id ? { ...item, parentProjectId: project.parentProjectId } : item));
+      setAssignments((items) => Object.fromEntries(Object.entries(items).filter(([, projectId]) => projectId !== project.id)));
+      setConnectionMessage("הפרויקט הוסר. שום קובץ לא נמחק מה־Drive.");
+    } catch { setConnectionMessage("לא הצלחנו להסיר את הפרויקט."); }
   };
 
   const saveDocumentProject = async (fileId: string, projectId: string) => {
@@ -208,7 +230,7 @@ export default function Home() {
 
         <aside id="ai-advisor" className="ai-strip ai-strip-top"><div className="ai-icon">✦</div><div><span>יועץ AI</span><strong>שאלות ותובנות על המידע שלך</strong><p>היועץ נמצא תמיד בראש מרכז המידע, ונפתח מכאן או מהתפריט העליון.</p></div><button onClick={openAdvisor}>פתיחת היועץ <span>←</span></button></aside>
 
-        <section id="projects" className="content-section projects-live"><div className="section-title"><div><span className="mini-icon coral">◈</span><h3>הפרויקטים שלי</h3><span className="count">{projects.length}</span></div><div className="project-actions"><button onClick={requestProjectSuggestions} disabled={!projects.length || suggestionsLoading}>{suggestionsLoading ? "מכין הצעות…" : "הצעות שיוך עם AI"}</button><button className="new-project-button" onClick={() => setShowProjectForm(true)}>＋ יצירת פרויקט</button></div></div>{projects.length ? <div className="live-project-list">{projects.map((project) => <article key={project.id}><span className="project-icon">{project.name.charAt(0)}</span><div><strong>{project.name}</strong><p>{project.description || "ללא תיאור"}</p><small>{Object.values(assignments).filter((id) => id === project.id).length} פריטים משויכים</small></div></article>)}</div> : <div className="empty project-empty">עדיין אין פרויקטים. צור את הפרויקט הראשון ושייך אליו מסמכים מה־Drive.</div>}{suggestions.length > 0 && <div className="suggestions-box"><strong>הצעות AI לשיוך</strong>{suggestions.map((suggestion) => { const file = driveDocuments.find((item) => item.id === suggestion.fileId); const project = projects.find((item) => item.id === suggestion.projectId); return <div key={suggestion.fileId}><span>{file?.title} ← {project?.name}</span><small>{suggestion.reason}</small></div> })}<button className="new-project-button" onClick={approveSuggestions}>אישור ההצעות</button></div>}</section>
+        <section id="projects" className="content-section projects-live"><div className="section-title"><div><span className="mini-icon coral">◈</span><h3>הפרויקטים שלי</h3><span className="count">{projects.length}</span></div><div className="project-actions"><button onClick={requestProjectSuggestions} disabled={!projects.length || suggestionsLoading}>{suggestionsLoading ? "מכין הצעות…" : "הצעות שיוך עם AI"}</button><button className="new-project-button" onClick={() => openProjectForm()}>＋ יצירת פרויקט</button></div></div>{projects.length ? <div className="live-project-list">{orderedProjects.map((project) => <article key={project.id} className={project.parentProjectId ? "subproject" : ""}><span className="project-icon">{project.name.charAt(0)}</span><div className="project-card-content"><strong>{project.name}</strong><p>{project.description || "ללא תיאור"}</p><small>{Object.values(assignments).filter((id) => id === project.id).length} פריטים משויכים</small><div className="project-card-actions"><button onClick={() => openProjectForm(project)}>עריכת פרויקט</button><button onClick={() => openProjectForm(undefined, project.id)}>יצירת תת־פרויקט</button><button className="danger" onClick={() => removeProject(project)}>מחיקת פרויקט</button></div></div></article>)}</div> : <div className="empty project-empty">עדיין אין פרויקטים. צור את הפרויקט הראשון ושייך אליו מסמכים מה־Drive.</div>}{suggestions.length > 0 && <div className="suggestions-box"><strong>הצעות AI לשיוך</strong>{suggestions.map((suggestion) => { const file = driveDocuments.find((item) => item.id === suggestion.fileId); const project = projects.find((item) => item.id === suggestion.projectId); return <div key={suggestion.fileId}><span>{file?.title} ← {project?.name}</span><small>{suggestion.reason}</small></div> })}<button className="new-project-button" onClick={approveSuggestions}>אישור ההצעות</button></div>}</section>
 
         <section id="documents" className="content-section documents-section">
           <div className="section-title documents-title"><div><span className="mini-icon violet">▤</span><h3>{driveConnected ? "כל הפריטים ב־Drive" : "המסמכים שלך"}</h3><span className="count">{driveLoading ? "טוען…" : `${driveDocuments.length} בסך הכול`}</span></div><div className="doc-controls"><label><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש במסמכים" /></label><button className="filter">☷ סינון</button></div></div>
@@ -224,7 +246,7 @@ export default function Home() {
       {connectionMessage && <div className="connection-toast" role="status">{connectionMessage}<button onClick={() => setConnectionMessage("")} aria-label="סגירה">×</button></div>}
       {showLogin && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="כניסה למרכז שלי"><form className="login-card" onSubmit={sendLoginLink}><button type="button" className="login-close" onClick={() => setShowLogin(false)} aria-label="סגירה">×</button><span className="brand-mark">מ</span><h2>כניסה לפני חיבור ה־Drive</h2><p>נשלח אליך קישור כניסה מאובטח. לאחר הכניסה אפשר לחבר את Google Drive.</p><label>כתובת אימייל<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus placeholder="name@example.com" /></label><button className="primary" type="submit">שליחת קישור כניסה</button></form></div>}
       {showAdvisor && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="יועץ AI"><section className="login-card advisor-card"><button type="button" className="login-close" onClick={() => setShowAdvisor(false)} aria-label="סגירה">×</button><span className="brand-mark">✦</span><h2>יועץ AI</h2><p>שאל על שמות הקבצים, הסוגים ותאריכי העדכון ב־Drive. היועץ לא קורא עדיין את תוכן הקבצים עצמם.</p><div className="advisor-messages" aria-live="polite">{advisorMessages.length === 0 && <div className="advisor-empty">אפשר לשאול למשל: אילו קבצים עודכנו לאחרונה?</div>}{advisorMessages.map((message, index) => <div key={index} className={`advisor-message ${message.role}`}>{message.text}</div>)}{advisorLoading && <div className="advisor-message assistant">חושב…</div>}</div><form className="advisor-form" onSubmit={submitAdvisorQuestion}><label htmlFor="advisor-question">שאל שאלה על הקבצים שלך</label><textarea id="advisor-question" value={advisorQuestion} onChange={(event) => setAdvisorQuestion(event.target.value)} maxLength={1000} required placeholder="מה השתנה לאחרונה ב־Drive?" /><button className="primary" type="submit" disabled={advisorLoading}>{advisorLoading ? "שולח…" : "שליחה"}</button></form></section></div>}
-      {showProjectForm && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="יצירת פרויקט"><form className="login-card" onSubmit={createProject}><button type="button" className="login-close" onClick={() => setShowProjectForm(false)} aria-label="סגירה">×</button><span className="brand-mark">◈</span><h2>יצירת פרויקט</h2><label>שם הפרויקט<input value={projectName} onChange={(event) => setProjectName(event.target.value)} required maxLength={200} autoFocus /></label><label>תיאור<textarea value={projectDescription} onChange={(event) => setProjectDescription(event.target.value)} maxLength={2000} placeholder="מה שייך לפרויקט הזה?" /></label><button className="primary" type="submit" disabled={projectSaving}>{projectSaving ? "שומר…" : "יצירת פרויקט"}</button></form></div>}
+      {showProjectForm && <div className="login-overlay" role="dialog" aria-modal="true" aria-label={editingProjectId ? "עריכת פרויקט" : "יצירת פרויקט"}><form className="login-card" onSubmit={createProject}><button type="button" className="login-close" onClick={() => setShowProjectForm(false)} aria-label="סגירה">×</button><span className="brand-mark">◈</span><h2>{editingProjectId ? "עריכת פרויקט" : projectParentId ? "יצירת תת־פרויקט" : "יצירת פרויקט"}</h2><label>שם הפרויקט<input value={projectName} onChange={(event) => setProjectName(event.target.value)} required maxLength={200} autoFocus /></label><label>תיאור<textarea value={projectDescription} onChange={(event) => setProjectDescription(event.target.value)} maxLength={2000} placeholder="מה שייך לפרויקט הזה?" /></label><label>פרויקט אב<select value={projectParentId} onChange={(event) => setProjectParentId(event.target.value)}><option value="">ללא — פרויקט ראשי</option>{projects.filter((project) => project.id !== editingProjectId && !project.parentProjectId).map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select></label><button className="primary" type="submit" disabled={projectSaving}>{projectSaving ? "שומר…" : editingProjectId ? "שמירת שינויים" : "יצירת פרויקט"}</button></form></div>}
     </main>
   );
 }

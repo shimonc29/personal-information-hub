@@ -1,5 +1,5 @@
 import { validateProject } from "@/lib/projects.mjs";
-export type Project = { id: string; name: string; description: string; status: string };
+export type Project = { id: string; name: string; description: string; status: string; parentProjectId: string };
 
 function config() {
   const key = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
@@ -15,15 +15,34 @@ async function request(path: string, token: string, init: RequestInit = {}) {
 }
 
 export async function listProjects(token: string): Promise<Project[]> {
-  const rows = await request("projects?select=id,name,description,status,created_at&status=neq.archived&order=updated_at.desc", token);
-  return rows.map((row: Record<string, unknown>) => ({ id: row.id, name: row.name, description: row.description ?? "", status: row.status }));
+  const rows = await request("projects?select=id,name,description,status,client,created_at&status=neq.archived&order=updated_at.desc", token);
+  return rows.map((row: Record<string, unknown>) => ({ id: row.id, name: row.name, description: row.description ?? "", status: row.status, parentProjectId: row.client ?? "" }));
 }
 
 export async function createProject(token: string, input: unknown) {
   const draft = validateProject(input);
   const slug = `project-${crypto.randomUUID().slice(0, 12)}`;
-  const rows = await request("projects", token, { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...draft, slug, status: "active", status_label: "פעיל", tone: "blue", updated_label: "היום" }) });
-  const row = rows[0]; return { id: row.id, name: row.name, description: row.description ?? "", status: row.status };
+  const { parentProjectId = "", ...fields } = draft;
+  const rows = await request("projects", token, { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...fields, client: parentProjectId, slug, status: "active", status_label: "פעיל", tone: "blue", updated_label: "היום" }) });
+  const row = rows[0]; return { id: row.id, name: row.name, description: row.description ?? "", status: row.status, parentProjectId: row.client ?? parentProjectId };
+}
+
+export async function updateProject(token: string, input: { id?: string; name?: string; description?: string; parentProjectId?: string }) {
+  if (!input.id) throw Object.assign(new Error("Project ID is required"), { statusCode: 400 });
+  if (input.parentProjectId === input.id) throw Object.assign(new Error("A project cannot contain itself"), { statusCode: 400 });
+  const draft = validateProject(input);
+  const { parentProjectId = "", ...fields } = draft;
+  const rows = await request(`projects?id=eq.${encodeURIComponent(input.id)}`, token, { method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify({ ...fields, client: parentProjectId, updated_at: new Date().toISOString() }) });
+  if (!rows?.length) throw Object.assign(new Error("Project not found"), { statusCode: 404 });
+  const row = rows[0]; return { id: row.id, name: row.name, description: row.description ?? "", status: row.status, parentProjectId: row.client ?? "" };
+}
+
+export async function deleteProject(token: string, id: string) {
+  if (!id) throw Object.assign(new Error("Project ID is required"), { statusCode: 400 });
+  const rows = await request(`projects?id=eq.${encodeURIComponent(id)}&select=id,client`, token);
+  if (!rows?.length) throw Object.assign(new Error("Project not found"), { statusCode: 404 });
+  await request(`projects?client=eq.${encodeURIComponent(id)}`, token, { method: "PATCH", body: JSON.stringify({ client: rows[0].client ?? "" }) });
+  await request(`projects?id=eq.${encodeURIComponent(id)}`, token, { method: "DELETE" });
 }
 
 export async function listDocumentProjects(token: string) {

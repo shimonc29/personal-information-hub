@@ -110,6 +110,16 @@ test("projects can be created and Drive documents can be assigned", async () => 
   assert.match(page, /אישור ההצעות/);
 });
 
+test("projects can be edited, removed, and created as subprojects", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const route = await readFile(new URL("../app/api/projects/route.ts", import.meta.url), "utf8");
+  assert.match(page, /עריכת פרויקט/);
+  assert.match(page, /יצירת תת־פרויקט/);
+  assert.match(page, /מחיקת פרויקט/);
+  assert.match(route, /export async function PATCH/);
+  assert.match(route, /export async function DELETE/);
+});
+
 test("the create-project button has a visible high-specificity style", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.project-actions \.new-project-button\s*\{[^}]*background:var\(--green\)!important[^}]*color:white!important/);
