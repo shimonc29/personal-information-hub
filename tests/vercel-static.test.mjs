@@ -78,12 +78,23 @@ test("top navigation maps every button to a real section", async () => {
   assert.match(page, /onClick=\{openAdvisor\}/);
 });
 
-test("the AI advisor is above the document list and opens an honest panel", async () => {
+test("the AI advisor is above the document list", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const advisorIndex = page.indexOf('id="ai-advisor"');
   const documentsIndex = page.indexOf('id="documents"');
 
   assert.ok(advisorIndex > 0 && advisorIndex < documentsIndex);
   assert.match(page, /showAdvisor/);
-  assert.match(page, /יועץ ה־AI עדיין לא מחובר למודל/);
+});
+
+test("the AI advisor uses a protected server route and real chat form", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  await access(new URL("../app/api/ai/chat/route.ts", import.meta.url));
+  await access(new URL("../app/api/ai/status/route.ts", import.meta.url));
+
+  assert.match(page, /submitAdvisorQuestion/);
+  assert.match(page, /\/api\/ai\/chat/);
+  assert.match(page, /advisorMessages/);
+  assert.match(page, /שאל שאלה על הקבצים שלך/);
+  assert.doesNotMatch(page, /יועץ ה־AI עדיין לא מחובר למודל/);
 });

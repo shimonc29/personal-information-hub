@@ -88,6 +88,16 @@ footer { border-top:1px solid var(--line); padding:25px max(24px,calc((100vw - 1
 .login-card input { font: inherit; padding: 13px 14px; border: 1px solid #d9dfdc; border-radius: 12px; direction: ltr; }
 .login-card .primary { justify-content: center; border: 0; }
 .advisor-card .brand-mark { background:linear-gradient(135deg,var(--green),#2f766a); }
+.advisor-card { width:min(620px,100%); max-height:calc(100vh - 40px); }
+.advisor-messages { min-height:150px; max-height:330px; overflow:auto; display:grid; gap:10px; padding:12px; background:#f4f5f1; border-radius:14px; }
+.advisor-message { width:fit-content; max-width:88%; padding:10px 13px; border-radius:13px; line-height:1.55; white-space:pre-wrap; }
+.advisor-message.user { margin-right:auto; background:var(--green); color:white; }
+.advisor-message.assistant { background:white; border:1px solid var(--line); }
+.advisor-empty { color:var(--muted); text-align:center; padding:45px 10px; }
+.advisor-form { display:grid; gap:8px; }
+.advisor-form label { font-weight:700; }
+.advisor-form textarea { min-height:85px; resize:vertical; border:1px solid var(--line); border-radius:12px; padding:12px; font:inherit; }
+.advisor-form .primary:disabled { opacity:.6; cursor:wait; }
 .open-document { color: var(--green); font-weight: 800; text-decoration: none; white-space: nowrap; }
 .open-document:hover { text-decoration: underline; }
 @media (max-width:420px){.hero h1{font-size:37px}.section-title h3{font-size:17px}.project-card{min-width:225px}.category-grid{gap:8px}.topic-list button{font-size:11px}.avatar{width:34px;height:34px}}

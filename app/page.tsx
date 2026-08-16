@@ -14,6 +14,9 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [showLogin, setShowLogin] = useState(false);
   const [showAdvisor, setShowAdvisor] = useState(false);
+  const [advisorQuestion, setAdvisorQuestion] = useState("");
+  const [advisorMessages, setAdvisorMessages] = useState<{ role: "user" | "assistant"; text: string }[]>([]);
+  const [advisorLoading, setAdvisorLoading] = useState(false);
   const [driveDocuments, setDriveDocuments] = useState<ReturnType<typeof toDocument>[]>([]);
   const [driveConnected, setDriveConnected] = useState(false);
   const [driveLoading, setDriveLoading] = useState(false);
@@ -96,6 +99,26 @@ export default function Home() {
     } catch { setConnectionMessage("לא הצלחנו לשלוח את קישור הכניסה. נסה שוב."); }
   };
 
+  const submitAdvisorQuestion = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const question = advisorQuestion.trim();
+    if (!question || advisorLoading) return;
+    setAdvisorQuestion("");
+    setAdvisorMessages((messages) => [...messages, { role: "user", text: question }]);
+    setAdvisorLoading(true);
+    try {
+      const client = await authClient();
+      const { data } = await client.auth.getSession();
+      if (!data.session) throw new Error("צריך להיכנס ולחבר את Google Drive לפני ששואלים את היועץ.");
+      const response = await fetch("/api/ai/chat", { method: "POST", headers: { Authorization: `Bearer ${data.session.access_token}`, "content-type": "application/json" }, body: JSON.stringify({ question }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "לא הצלחנו לקבל תשובה.");
+      setAdvisorMessages((messages) => [...messages, { role: "assistant", text: result.answer }]);
+    } catch (error) {
+      setAdvisorMessages((messages) => [...messages, { role: "assistant", text: error instanceof Error ? error.message : "לא הצלחנו לקבל תשובה." }]);
+    } finally { setAdvisorLoading(false); }
+  };
+
   return (
     <main id="top" dir="rtl">
       <header className="topbar">
@@ -157,7 +180,7 @@ export default function Home() {
       <footer><button className="brand"><span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span></button><p>המידע שלך, בדרך שלך.</p><span>Google Drive · {driveConnected ? `${driveDocuments.length} פריטים מחוברים` : "מוכן לחיבור"}</span></footer>
       {connectionMessage && <div className="connection-toast" role="status">{connectionMessage}<button onClick={() => setConnectionMessage("")} aria-label="סגירה">×</button></div>}
       {showLogin && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="כניסה למרכז שלי"><form className="login-card" onSubmit={sendLoginLink}><button type="button" className="login-close" onClick={() => setShowLogin(false)} aria-label="סגירה">×</button><span className="brand-mark">מ</span><h2>כניסה לפני חיבור ה־Drive</h2><p>נשלח אליך קישור כניסה מאובטח. לאחר הכניסה אפשר לחבר את Google Drive.</p><label>כתובת אימייל<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus placeholder="name@example.com" /></label><button className="primary" type="submit">שליחת קישור כניסה</button></form></div>}
-      {showAdvisor && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="יועץ AI"><section className="login-card advisor-card"><button type="button" className="login-close" onClick={() => setShowAdvisor(false)} aria-label="סגירה">×</button><span className="brand-mark">✦</span><h2>יועץ AI</h2><p>יועץ ה־AI עדיין לא מחובר למודל. הניווט והממשק מוכנים, אבל כדי לשלוח שאלות ולקבל תשובות אמיתיות צריך לחבר שירות AI מאובטח בצד השרת.</p><button className="primary" type="button" onClick={() => setShowAdvisor(false)}>הבנתי</button></section></div>}
+      {showAdvisor && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="יועץ AI"><section className="login-card advisor-card"><button type="button" className="login-close" onClick={() => setShowAdvisor(false)} aria-label="סגירה">×</button><span className="brand-mark">✦</span><h2>יועץ AI</h2><p>שאל על שמות הקבצים, הסוגים ותאריכי העדכון ב־Drive. היועץ לא קורא עדיין את תוכן הקבצים עצמם.</p><div className="advisor-messages" aria-live="polite">{advisorMessages.length === 0 && <div className="advisor-empty">אפשר לשאול למשל: אילו קבצים עודכנו לאחרונה?</div>}{advisorMessages.map((message, index) => <div key={index} className={`advisor-message ${message.role}`}>{message.text}</div>)}{advisorLoading && <div className="advisor-message assistant">חושב…</div>}</div><form className="advisor-form" onSubmit={submitAdvisorQuestion}><label htmlFor="advisor-question">שאל שאלה על הקבצים שלך</label><textarea id="advisor-question" value={advisorQuestion} onChange={(event) => setAdvisorQuestion(event.target.value)} maxLength={1000} required placeholder="מה השתנה לאחרונה ב־Drive?" /><button className="primary" type="submit" disabled={advisorLoading}>{advisorLoading ? "שולח…" : "שליחה"}</button></form></section></div>}
     </main>
   );
 }
