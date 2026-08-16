@@ -101,7 +101,7 @@ footer { border-top:1px solid var(--line); padding:25px max(24px,calc((100vw - 1
 .projects-live { background:white; border:1px solid var(--line); border-radius:16px; padding:20px; }
 .project-actions { margin-right:auto; display:flex!important; gap:8px; }
 .new-project-button,.project-actions button { border:1px solid var(--line)!important; background:white!important; border-radius:9px; padding:9px 12px!important; font-weight:700; }
-.new-project-button { background:var(--green)!important; color:white!important; cursor:pointer; }
+.project-actions .new-project-button { background:var(--green)!important; color:white!important; cursor:pointer; }
 .live-project-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
 .live-project-list article { display:flex; gap:12px; border:1px solid var(--line); border-radius:13px; padding:14px; }
 .live-project-list p { margin:4px 0; color:var(--muted); font-size:12px; }.live-project-list small{color:var(--muted)}

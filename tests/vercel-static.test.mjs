@@ -109,3 +109,8 @@ test("projects can be created and Drive documents can be assigned", async () => 
   assert.match(page, /הצעות שיוך עם AI/);
   assert.match(page, /אישור ההצעות/);
 });
+
+test("the create-project button has a visible high-specificity style", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.project-actions \.new-project-button\s*\{[^}]*background:var\(--green\)!important[^}]*color:white!important/);
+});
