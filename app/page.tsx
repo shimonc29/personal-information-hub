@@ -90,7 +90,7 @@ export default function Home() {
 
       <section className="workspace">
         <div className="workspace-heading">
-          <div><span className="date">יום ראשון, 16 באוגוסט</span><h2>בוקר טוב, שימון 👋</h2><p>המידע שלך מסודר ומחכה לך.</p></div>
+          <div><span className="date">יום ראשון, 16 באוגוסט</span><h2>בוקר טוב 👋</h2><p>המידע שלך מסודר ומחכה לך.</p></div>
           <label className="global-search"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש בכל המידע..." /><kbd>⌘ K</kbd></label>
         </div>
 
