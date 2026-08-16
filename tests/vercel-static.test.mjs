@@ -46,3 +46,13 @@ test("Google Drive API routes return to the new application", async () => {
   assert.match(callback, /\/index\.html\?google=connected/);
   assert.match(callback, /\/index\.html\?google=error/);
 });
+
+test("the document screen loads and renders connected Drive files", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+
+  assert.match(page, /fetchAllDriveFiles/);
+  assert.match(page, /useEffect/);
+  assert.match(page, /driveDocuments\.length/);
+  assert.match(page, /href=\{doc\.url\}/);
+  assert.match(page, /טוען את כל הקבצים מה־Drive/);
+});

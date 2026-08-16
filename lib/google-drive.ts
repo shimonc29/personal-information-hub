@@ -95,7 +95,7 @@ export async function listGoogleDriveFiles(token: string, pageToken?: string) {
     const next = await refreshed.json(); if (!refreshed.ok) throw Object.assign(new Error("Please reconnect Google Drive"), { statusCode: 409 }); accessToken = next.access_token;
   }
   const url = new URL("https://www.googleapis.com/drive/v3/files");
-  Object.entries({ pageSize: "100", orderBy: "modifiedTime desc", fields: "nextPageToken,files(id,name,mimeType,modifiedTime,webViewLink,iconLink,size)", q: "trashed = false" }).forEach(([key, value]) => url.searchParams.set(key, value));
+  Object.entries({ pageSize: "1000", orderBy: "modifiedTime desc", fields: "nextPageToken,files(id,name,mimeType,modifiedTime,webViewLink,iconLink,size)", q: "trashed = false" }).forEach(([key, value]) => url.searchParams.set(key, value));
   if (pageToken) url.searchParams.set("pageToken", pageToken);
   const response = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
   if (!response.ok) throw Object.assign(new Error("Could not read Google Drive"), { statusCode: 502 });

@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { fetchAllDriveFiles, toDocument } from "@/lib/drive-client.mjs";
 
 const projects = [
   { name: "השקת סדנת AI", meta: "12 מסמכים", color: "coral", icon: "✦" },
@@ -40,10 +41,44 @@ export default function Home() {
   const [connectionMessage, setConnectionMessage] = useState("");
   const [email, setEmail] = useState("");
   const [showLogin, setShowLogin] = useState(false);
+  const [driveDocuments, setDriveDocuments] = useState<ReturnType<typeof toDocument>[]>([]);
+  const [driveConnected, setDriveConnected] = useState(false);
+  const [driveLoading, setDriveLoading] = useState(false);
 
-  const filteredDocs = useMemo(() => documents.filter((d) =>
-    `${d.title} ${d.project} ${d.person}`.includes(query.trim())
-  ), [query]);
+  const visibleDocuments = driveConnected ? driveDocuments : documents;
+  const filteredDocs = useMemo(() => visibleDocuments.filter((d) =>
+    `${d.title} ${d.type} ${d.project} ${d.person}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
+  ), [query, visibleDocuments]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadDrive() {
+      try {
+        const configResponse = await fetch("/api/config");
+        if (!configResponse.ok) return;
+        const config = await configResponse.json();
+        const client = createClient(config.supabaseUrl, config.supabaseAnonKey, { auth: { flowType: "pkce", persistSession: true, detectSessionInUrl: true } });
+        const { data } = await client.auth.getSession();
+        if (!data.session || cancelled) return;
+        const statusResponse = await fetch("/api/connections/google/status", { headers: { Authorization: `Bearer ${data.session.access_token}` } });
+        const status = statusResponse.ok ? await statusResponse.json() : { connected: false };
+        if (!status.connected || cancelled) return;
+        setDriveConnected(true);
+        setDriveLoading(true);
+        setConnectionMessage("טוען את כל הקבצים מה־Drive…");
+        const files = await fetchAllDriveFiles(data.session.access_token);
+        if (!cancelled) {
+          setDriveDocuments(files.map(toDocument));
+          setConnectionMessage(`נטענו ${files.length} פריטים מה־Drive.`);
+          history.replaceState(null, "", "/index.html");
+        }
+      } catch (error) {
+        if (!cancelled) setConnectionMessage(error instanceof Error ? error.message : "לא הצלחנו לטעון את ה־Drive.");
+      } finally { if (!cancelled) setDriveLoading(false); }
+    }
+    loadDrive();
+    return () => { cancelled = true; };
+  }, []);
 
   const navigate = (label: string) => {
     setActive(label);
@@ -152,9 +187,9 @@ export default function Home() {
         </div>
 
         <section id="documents" className="content-section documents-section">
-          <div className="section-title documents-title"><div><span className="mini-icon violet">▤</span><h3>מסמכים אחרונים</h3><span className="count">68 בסך הכול</span></div><div className="doc-controls"><label><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש במסמכים" /></label><button className="filter">☷ סינון</button></div></div>
+          <div className="section-title documents-title"><div><span className="mini-icon violet">▤</span><h3>{driveConnected ? "כל הפריטים ב־Drive" : "מסמכים לדוגמה"}</h3><span className="count">{driveLoading ? "טוען…" : `${driveConnected ? driveDocuments.length : documents.length} בסך הכול`}</span></div><div className="doc-controls"><label><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש במסמכים" /></label><button className="filter">☷ סינון</button></div></div>
           <div className="table-wrap"><table><thead><tr><th>שם המסמך</th><th>פרויקט</th><th>אדם</th><th>עודכן</th><th></th></tr></thead><tbody>
-            {filteredDocs.map((doc) => <tr key={doc.title}><td><span className={`file-icon ${doc.tone}`}>{doc.type.slice(0,1)}</span><span><strong>{doc.title}</strong><small>{doc.type} · Google Drive</small></span></td><td><span className="tag">{doc.project}</span></td><td>{doc.person}</td><td>{doc.date}</td><td><button aria-label={`אפשרויות עבור ${doc.title}`}>•••</button></td></tr>)}
+            {filteredDocs.map((doc) => <tr key={"id" in doc ? doc.id : doc.title}><td><span className={`file-icon ${doc.tone}`}>{doc.type.slice(0,1)}</span><span><strong>{doc.title}</strong><small>{doc.type} · Google Drive</small></span></td><td><span className="tag">{doc.project}</span></td><td>{doc.person}</td><td>{doc.date}</td><td>{"url" in doc ? <a className="open-document" href={doc.url} target="_blank" rel="noreferrer" aria-label={`פתיחת ${doc.title}`}>פתיחה ←</a> : <button aria-label={`אפשרויות עבור ${doc.title}`}>•••</button>}</td></tr>)}
           </tbody></table>{filteredDocs.length === 0 && <div className="empty">לא מצאנו מסמכים שמתאימים לחיפוש.</div>}</div>
           <button className="all-documents">לכל המסמכים <span>←</span></button>
         </section>
@@ -164,7 +199,7 @@ export default function Home() {
         <aside className="ai-strip"><div className="ai-icon">✦</div><div><span>תוספת חכמה</span><strong>רוצה לדעת מה חדש במידע שלך?</strong><p>העוזר יכול לסכם שינויים ולענות על שאלות — כשצריך.</p></div><button>פתיחת העוזר <span>←</span></button></aside>
       </section>
 
-      <footer><button className="brand"><span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span></button><p>המידע שלך, בדרך שלך.</p><span>Google Drive · מוכן לחיבור</span></footer>
+      <footer><button className="brand"><span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span></button><p>המידע שלך, בדרך שלך.</p><span>Google Drive · {driveConnected ? `${driveDocuments.length} פריטים מחוברים` : "מוכן לחיבור"}</span></footer>
       {connectionMessage && <div className="connection-toast" role="status">{connectionMessage}<button onClick={() => setConnectionMessage("")} aria-label="סגירה">×</button></div>}
       {showLogin && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="כניסה למרכז שלי"><form className="login-card" onSubmit={sendLoginLink}><button type="button" className="login-close" onClick={() => setShowLogin(false)} aria-label="סגירה">×</button><span className="brand-mark">מ</span><h2>כניסה לפני חיבור ה־Drive</h2><p>נשלח אליך קישור כניסה מאובטח. לאחר הכניסה אפשר לחבר את Google Drive.</p><label>כתובת אימייל<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus placeholder="name@example.com" /></label><button className="primary" type="submit">שליחת קישור כניסה</button></form></div>}
     </main>
