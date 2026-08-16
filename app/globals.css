@@ -77,5 +77,15 @@ footer { border-top:1px solid var(--line); padding:25px max(24px,calc((100vw - 1
   .hero{min-height:0;padding:54px 20px 48px}.hero h1{font-size:42px;letter-spacing:-1.5px;margin:20px 0 17px}.hero>p{font-size:16px;line-height:1.65}.hero-actions{flex-direction:column;gap:16px}.primary{width:100%;justify-content:center;max-width:350px}.trust-row{flex-direction:column;gap:7px;margin-top:23px}.eyebrow{font-size:12px}
   .workspace{padding:35px 16px 60px}.workspace-heading{align-items:stretch;flex-direction:column;gap:22px}.workspace-heading h2{font-size:25px}.global-search{width:100%}.project-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;margin-left:-16px}.project-card{min-width:245px;scroll-snap-align:start}.add-project{min-width:180px}.two-columns{grid-template-columns:1fr;gap:0}.documents-section{margin-right:-6px;margin-left:-6px;padding:16px 12px}.documents-title{align-items:flex-start;flex-direction:column;gap:14px}.documents-title>div:first-child{flex-wrap:wrap}.doc-controls{width:100%;margin:0!important;display:flex!important}.doc-controls label{flex:1;width:auto}.section-title button{white-space:nowrap}.topic-list{gap:7px}.ai-strip{align-items:flex-start;flex-wrap:wrap}.ai-strip>div:nth-child(2){width:calc(100% - 70px)}.ai-strip button{margin:5px 63px 0 0;width:calc(100% - 63px)}footer{flex-wrap:wrap}footer>span{width:100%;margin:0}.category-grid button{height:90px;padding:11px}
 }
+
+.connection-toast { position: fixed; z-index: 100; bottom: 24px; left: 50%; transform: translateX(-50%); background: #153f38; color: white; padding: 14px 18px; border-radius: 14px; box-shadow: 0 10px 35px #153f3850; display: flex; gap: 18px; align-items: center; max-width: calc(100vw - 32px); }
+.connection-toast button, .login-close { border: 0; background: transparent; color: inherit; font-size: 22px; cursor: pointer; }
+.login-overlay { position: fixed; inset: 0; z-index: 110; background: #153f3866; backdrop-filter: blur(5px); display: grid; place-items: center; padding: 20px; }
+.login-card { width: min(430px, 100%); background: #fffdf9; border-radius: 24px; padding: 32px; box-shadow: 0 24px 80px #153f3840; position: relative; display: grid; gap: 16px; text-align: right; }
+.login-card .login-close { position: absolute; left: 16px; top: 12px; color: #49615d; }
+.login-card h2, .login-card p { margin: 0; }
+.login-card label { display: grid; gap: 7px; font-weight: 700; }
+.login-card input { font: inherit; padding: 13px 14px; border: 1px solid #d9dfdc; border-radius: 12px; direction: ltr; }
+.login-card .primary { justify-content: center; border: 0; }
 @media (max-width:420px){.hero h1{font-size:37px}.section-title h3{font-size:17px}.project-card{min-width:225px}.category-grid{gap:8px}.topic-list button{font-size:11px}.avatar{width:34px;height:34px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.project-card{transition:none}}

@@ -1,0 +1,2 @@
+import { apiError, bearer, listGoogleDriveFiles } from "@/lib/google-drive";
+export async function GET(request: Request) { try { const token = bearer(request); if (!token) return Response.json({ error: "Authentication is required" }, { status: 401 }); const url = new URL(request.url); return Response.json(await listGoogleDriveFiles(token, url.searchParams.get("pageToken") ?? undefined)); } catch (error) { return apiError(error); } }

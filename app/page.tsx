@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 const projects = [
   { name: "השקת סדנת AI", meta: "12 מסמכים", color: "coral", icon: "✦" },
@@ -36,6 +37,9 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [connectionMessage, setConnectionMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
 
   const filteredDocs = useMemo(() => documents.filter((d) =>
     `${d.title} ${d.project} ${d.person}`.includes(query.trim())
@@ -46,6 +50,36 @@ export default function Home() {
     setMenuOpen(false);
     const target = label === "מסמכים" ? "documents" : label === "פרויקטים" ? "projects" : "top";
     document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const authClient = async () => {
+    const response = await fetch("/api/config");
+    if (!response.ok) throw new Error("החיבור עדיין לא הוגדר בשרת.");
+    const config = await response.json();
+    return createClient(config.supabaseUrl, config.supabaseAnonKey, { auth: { flowType: "pkce", persistSession: true, detectSessionInUrl: true } });
+  };
+
+  const connectGoogleDrive = async () => {
+    setConnectionMessage("מתחברים…");
+    try {
+      const client = await authClient();
+      const { data } = await client.auth.getSession();
+      if (!data.session) { setShowLogin(true); setConnectionMessage(""); return; }
+      const response = await fetch("/api/connections/google/start", { method: "POST", headers: { Authorization: `Bearer ${data.session.access_token}` } });
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.error || "לא הצלחנו להתחבר ל־Drive.");
+      location.assign(result.url);
+    } catch (error) { setConnectionMessage(error instanceof Error ? error.message : "לא הצלחנו להתחבר ל־Drive."); }
+  };
+
+  const sendLoginLink = async (event: React.FormEvent) => {
+    event.preventDefault(); setConnectionMessage("שולחים קישור מאובטח…");
+    try {
+      const client = await authClient();
+      const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: `${location.origin}/index.html` } });
+      if (error) throw error;
+      setShowLogin(false); setConnectionMessage("הקישור נשלח למייל. אחרי הכניסה לחץ שוב על חיבור Google Drive.");
+    } catch { setConnectionMessage("לא הצלחנו לשלוח את קישור הכניסה. נסה שוב."); }
   };
 
   return (
@@ -60,7 +94,7 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
-          <button className="connect-button"><span>＋</span> חיבור מידע</button>
+          <button className="connect-button" onClick={connectGoogleDrive}><span>＋</span> חיבור מידע</button>
           <button className="icon-button" aria-label="התראות">♢<i /></button>
           <button className="avatar" aria-label="פרופיל משתמש">ש</button>
           <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="פתיחת תפריט">
@@ -72,7 +106,7 @@ export default function Home() {
             {["בית", "מסמכים", "פרויקטים", "אנשים"].map((item) => (
               <button key={item} className={active === item ? "active" : ""} onClick={() => navigate(item)}>{item}<span>←</span></button>
             ))}
-            <button className="mobile-connect">＋ חיבור מידע חדש</button>
+            <button className="mobile-connect" onClick={connectGoogleDrive}>＋ חיבור מידע חדש</button>
           </nav>
         )}
       </header>
@@ -82,7 +116,7 @@ export default function Home() {
         <h1>עושים סדר ב־Drive<br /><em>תוך 5 דקות.</em></h1>
         <p>מחברים את ה־Drive, ואנחנו הופכים את כל הקבצים למרכז מידע חכם — לפי פרויקטים, אנשים ונושאים. בלי להזיז אף קובץ.</p>
         <div className="hero-actions">
-          <button className="primary"><span className="drive-dots"><i /><i /><i /></span> חיבור Google Drive <b>←</b></button>
+          <button className="primary" onClick={connectGoogleDrive}><span className="drive-dots"><i /><i /><i /></span> חיבור Google Drive <b>←</b></button>
           <button className="text-action" onClick={() => navigate("מסמכים")}>לראות איך זה עובד <span>↓</span></button>
         </div>
         <div className="trust-row"><span>✓ לא משנים את מבנה התיקיות שלך</span><span>✓ ההרשאות נשארות בשליטתך</span></div>
@@ -130,7 +164,9 @@ export default function Home() {
         <aside className="ai-strip"><div className="ai-icon">✦</div><div><span>תוספת חכמה</span><strong>רוצה לדעת מה חדש במידע שלך?</strong><p>העוזר יכול לסכם שינויים ולענות על שאלות — כשצריך.</p></div><button>פתיחת העוזר <span>←</span></button></aside>
       </section>
 
-      <footer><button className="brand"><span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span></button><p>המידע שלך, בדרך שלך.</p><span>מחובר ל־Google Drive · סנכרון אחרון לפני 2 דקות</span></footer>
+      <footer><button className="brand"><span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span></button><p>המידע שלך, בדרך שלך.</p><span>Google Drive · מוכן לחיבור</span></footer>
+      {connectionMessage && <div className="connection-toast" role="status">{connectionMessage}<button onClick={() => setConnectionMessage("")} aria-label="סגירה">×</button></div>}
+      {showLogin && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="כניסה למרכז שלי"><form className="login-card" onSubmit={sendLoginLink}><button type="button" className="login-close" onClick={() => setShowLogin(false)} aria-label="סגירה">×</button><span className="brand-mark">מ</span><h2>כניסה לפני חיבור ה־Drive</h2><p>נשלח אליך קישור כניסה מאובטח. לאחר הכניסה אפשר לחבר את Google Drive.</p><label>כתובת אימייל<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus placeholder="name@example.com" /></label><button className="primary" type="submit">שליחת קישור כניסה</button></form></div>}
     </main>
   );
 }

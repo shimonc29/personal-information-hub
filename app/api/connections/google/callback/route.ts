@@ -1,0 +1,2 @@
+import { completeGoogleDrive } from "@/lib/google-drive";
+export async function GET(request: Request) { const url = new URL(request.url); try { if (url.searchParams.get("error")) throw new Error("Google denied access"); await completeGoogleDrive(url.searchParams.get("state") ?? "", url.searchParams.get("code") ?? ""); return Response.redirect(new URL("/index.html?google=connected", url.origin)); } catch { return Response.redirect(new URL("/index.html?google=error", url.origin)); } }
