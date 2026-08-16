@@ -67,3 +67,23 @@ test("the information hub never renders invented sample data", async () => {
   assert.match(page, /driveConnected \? driveDocuments : \[\]/);
   assert.match(page, /toLocaleDateString\("he-IL"/);
 });
+
+test("top navigation maps every button to a real section", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+
+  assert.match(page, /const navigationTargets/);
+  assert.match(page, /"יועץ AI": "ai-advisor"/);
+  assert.match(page, /\["בית", "יועץ AI", "מסמכים"\]/);
+  assert.match(page, /id="ai-advisor"/);
+  assert.match(page, /onClick=\{openAdvisor\}/);
+});
+
+test("the AI advisor is above the document list and opens an honest panel", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const advisorIndex = page.indexOf('id="ai-advisor"');
+  const documentsIndex = page.indexOf('id="documents"');
+
+  assert.ok(advisorIndex > 0 && advisorIndex < documentsIndex);
+  assert.match(page, /showAdvisor/);
+  assert.match(page, /יועץ ה־AI עדיין לא מחובר למודל/);
+});

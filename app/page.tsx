@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { fetchAllDriveFiles, toDocument } from "@/lib/drive-client.mjs";
 
+const navigationTargets: Record<string, string> = { "בית": "top", "יועץ AI": "ai-advisor", "מסמכים": "documents" };
+
 export default function Home() {
   const [active, setActive] = useState("בית");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +13,7 @@ export default function Home() {
   const [connectionMessage, setConnectionMessage] = useState("");
   const [email, setEmail] = useState("");
   const [showLogin, setShowLogin] = useState(false);
+  const [showAdvisor, setShowAdvisor] = useState(false);
   const [driveDocuments, setDriveDocuments] = useState<ReturnType<typeof toDocument>[]>([]);
   const [driveConnected, setDriveConnected] = useState(false);
   const [driveLoading, setDriveLoading] = useState(false);
@@ -54,8 +57,13 @@ export default function Home() {
   const navigate = (label: string) => {
     setActive(label);
     setMenuOpen(false);
-    const target = label === "מסמכים" ? "documents" : "top";
+    const target = navigationTargets[label] ?? "top";
     document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const openAdvisor = () => {
+    setShowAdvisor(true);
+    navigate("יועץ AI");
   };
 
   const authClient = async () => {
@@ -95,8 +103,8 @@ export default function Home() {
           <span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span>
         </button>
         <nav className="desktop-nav" aria-label="ניווט ראשי">
-          {["בית", "מסמכים"].map((item) => (
-            <button key={item} className={active === item ? "active" : ""} onClick={() => navigate(item)}>{item}</button>
+          {["בית", "יועץ AI", "מסמכים"].map((item) => (
+            <button key={item} className={active === item ? "active" : ""} onClick={() => item === "יועץ AI" ? openAdvisor() : navigate(item)}>{item}</button>
           ))}
         </nav>
         <div className="header-actions">
@@ -109,8 +117,8 @@ export default function Home() {
         </div>
         {menuOpen && (
           <nav className="mobile-menu" aria-label="ניווט למובייל">
-            {["בית", "מסמכים"].map((item) => (
-              <button key={item} className={active === item ? "active" : ""} onClick={() => navigate(item)}>{item}<span>←</span></button>
+            {["בית", "יועץ AI", "מסמכים"].map((item) => (
+              <button key={item} className={active === item ? "active" : ""} onClick={() => item === "יועץ AI" ? openAdvisor() : navigate(item)}>{item}<span>←</span></button>
             ))}
             <button className="mobile-connect" onClick={connectGoogleDrive}>＋ חיבור מידע חדש</button>
           </nav>
@@ -134,6 +142,8 @@ export default function Home() {
           <label className="global-search"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש בכל המידע..." /><kbd>⌘ K</kbd></label>
         </div>
 
+        <aside id="ai-advisor" className="ai-strip ai-strip-top"><div className="ai-icon">✦</div><div><span>יועץ AI</span><strong>שאלות ותובנות על המידע שלך</strong><p>היועץ נמצא תמיד בראש מרכז המידע, ונפתח מכאן או מהתפריט העליון.</p></div><button onClick={openAdvisor}>פתיחת היועץ <span>←</span></button></aside>
+
         <section id="documents" className="content-section documents-section">
           <div className="section-title documents-title"><div><span className="mini-icon violet">▤</span><h3>{driveConnected ? "כל הפריטים ב־Drive" : "המסמכים שלך"}</h3><span className="count">{driveLoading ? "טוען…" : `${driveDocuments.length} בסך הכול`}</span></div><div className="doc-controls"><label><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="חיפוש במסמכים" /></label><button className="filter">☷ סינון</button></div></div>
           <div className="table-wrap"><table><thead><tr><th>שם המסמך</th><th>פרויקט</th><th>אדם</th><th>עודכן</th><th></th></tr></thead><tbody>
@@ -142,12 +152,12 @@ export default function Home() {
           <button className="all-documents">לכל המסמכים <span>←</span></button>
         </section>
 
-        <aside className="ai-strip"><div className="ai-icon">✦</div><div><span>תוספת חכמה</span><strong>רוצה לדעת מה חדש במידע שלך?</strong><p>העוזר יכול לסכם שינויים ולענות על שאלות — כשצריך.</p></div><button>פתיחת העוזר <span>←</span></button></aside>
       </section>
 
       <footer><button className="brand"><span className="brand-mark">מ</span><span>מרכז<span className="brand-light">שלי</span></span></button><p>המידע שלך, בדרך שלך.</p><span>Google Drive · {driveConnected ? `${driveDocuments.length} פריטים מחוברים` : "מוכן לחיבור"}</span></footer>
       {connectionMessage && <div className="connection-toast" role="status">{connectionMessage}<button onClick={() => setConnectionMessage("")} aria-label="סגירה">×</button></div>}
       {showLogin && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="כניסה למרכז שלי"><form className="login-card" onSubmit={sendLoginLink}><button type="button" className="login-close" onClick={() => setShowLogin(false)} aria-label="סגירה">×</button><span className="brand-mark">מ</span><h2>כניסה לפני חיבור ה־Drive</h2><p>נשלח אליך קישור כניסה מאובטח. לאחר הכניסה אפשר לחבר את Google Drive.</p><label>כתובת אימייל<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus placeholder="name@example.com" /></label><button className="primary" type="submit">שליחת קישור כניסה</button></form></div>}
+      {showAdvisor && <div className="login-overlay" role="dialog" aria-modal="true" aria-label="יועץ AI"><section className="login-card advisor-card"><button type="button" className="login-close" onClick={() => setShowAdvisor(false)} aria-label="סגירה">×</button><span className="brand-mark">✦</span><h2>יועץ AI</h2><p>יועץ ה־AI עדיין לא מחובר למודל. הניווט והממשק מוכנים, אבל כדי לשלוח שאלות ולקבל תשובות אמיתיות צריך לחבר שירות AI מאובטח בצד השרת.</p><button className="primary" type="button" onClick={() => setShowAdvisor(false)}>הבנתי</button></section></div>}
     </main>
   );
 }
