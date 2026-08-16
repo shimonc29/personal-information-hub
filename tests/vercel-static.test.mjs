@@ -73,7 +73,7 @@ test("top navigation maps every button to a real section", async () => {
 
   assert.match(page, /const navigationTargets/);
   assert.match(page, /"יועץ AI": "ai-advisor"/);
-  assert.match(page, /\["בית", "יועץ AI", "מסמכים"\]/);
+  assert.match(page, /\["בית", "יועץ AI", "פרויקטים", "מסמכים"\]/);
   assert.match(page, /id="ai-advisor"/);
   assert.match(page, /onClick=\{openAdvisor\}/);
 });
@@ -97,4 +97,15 @@ test("the AI advisor uses a protected server route and real chat form", async ()
   assert.match(page, /advisorMessages/);
   assert.match(page, /שאל שאלה על הקבצים שלך/);
   assert.doesNotMatch(page, /יועץ ה־AI עדיין לא מחובר למודל/);
+});
+
+test("projects can be created and Drive documents can be assigned", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const route of ["../app/api/projects/route.ts", "../app/api/document-projects/route.ts", "../app/api/ai/project-suggestions/route.ts"]) await access(new URL(route, import.meta.url));
+
+  assert.match(page, /יצירת פרויקט/);
+  assert.match(page, /createProject/);
+  assert.match(page, /saveDocumentProject/);
+  assert.match(page, /הצעות שיוך עם AI/);
+  assert.match(page, /אישור ההצעות/);
 });

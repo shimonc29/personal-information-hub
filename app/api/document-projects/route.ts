@@ -1,0 +1,4 @@
+import { bearer } from "@/lib/google-drive";
+import { listDocumentProjects, saveDocumentProject } from "@/lib/project-store";
+export async function GET(request: Request) { try { const token = bearer(request); if (!token) return Response.json({ error: "Authentication is required" }, { status: 401 }); return Response.json({ assignments: await listDocumentProjects(token) }); } catch { return Response.json({ error: "לא הצלחנו לטעון שיוכים." }, { status: 500 }); } }
+export async function POST(request: Request) { try { const token = bearer(request); if (!token) return Response.json({ error: "Authentication is required" }, { status: 401 }); await saveDocumentProject(token, await request.json()); return Response.json({ saved: true }); } catch { return Response.json({ error: "לא הצלחנו לשמור את השיוך." }, { status: 500 }); } }
