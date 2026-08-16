@@ -15,3 +15,10 @@ test("Vercel serves the real application at /index.html without an iframe", asyn
   assert.deepEqual(config.rewrites, [{ source: "/index.html", destination: "/" }]);
   await assert.rejects(readFile(new URL("../public/index.html", import.meta.url), "utf8"), { code: "ENOENT" });
 });
+
+test("the greeting does not expose a hard-coded user name", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(page, /בוקר טוב, שימון/);
+  assert.match(page, /בוקר טוב 👋/);
+});
