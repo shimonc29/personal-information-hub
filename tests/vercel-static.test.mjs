@@ -56,3 +56,14 @@ test("the document screen loads and renders connected Drive files", async () => 
   assert.match(page, /href=\{doc\.url\}/);
   assert.match(page, /טוען את כל הקבצים מה־Drive/);
 });
+
+test("the information hub never renders invented sample data", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+
+  for (const inventedValue of ["השקת סדנת AI", "אתר חדש לעסק", "שיפוץ הבית", "נועה לוי", "אורי כהן", "דנה בר", "רון אביב", "16 באוגוסט"]) {
+    assert.doesNotMatch(page, new RegExp(inventedValue));
+  }
+  assert.doesNotMatch(page, /const (projects|people|documents|categories|topics) =/);
+  assert.match(page, /driveConnected \? driveDocuments : \[\]/);
+  assert.match(page, /toLocaleDateString\("he-IL"/);
+});
