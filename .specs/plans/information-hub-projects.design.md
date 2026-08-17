@@ -6,6 +6,12 @@ Google Drive is the first information source, not a complete business-management
 
 The home page focuses on three areas: what is new, insights, and asking the information. AI suggestions remain reviewable and never change Drive without explicit approval.
 
+## First-run flow
+
+After connecting Drive, the user first sees a factual health overview: total items, folders, file types, and items that need classification. The app then offers three virtual structures: life areas, projects and clients, or document types. Saving a structure creates organization only inside the app. It never changes Drive.
+
+Content analysis requires a separate, explicit consent screen. The screen identifies OpenAI and infrastructure providers as processors and explains the purpose. Optional contribution to aggregated analytics is a separate choice, off by default, and never required to use the product. The current release records consent but does not read or send document content; server-side content processing, retention, revocation, and deletion controls must exist before activation.
+
 ## Project model
 
 Users can create, edit, archive, and nest projects. The first interface supports two visible levels: projects and subprojects. Deleting a project never deletes Drive files. Its children move to the deleted project's parent, and its document links are removed.

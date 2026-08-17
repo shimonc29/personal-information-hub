@@ -124,3 +124,33 @@ test("the create-project button has a visible high-specificity style", async () 
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.project-actions \.new-project-button\s*\{[^}]*background:var\(--green\)!important[^}]*color:white!important/);
 });
+
+test("connected users see a Drive health overview before projects", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const health = page.indexOf('id="drive-health"');
+  const projects = page.indexOf('id="projects"');
+  assert.ok(health > 0 && health < projects);
+  assert.match(page, /מצב ה־Drive שלך/);
+  assert.match(page, /סך הכול פריטים/);
+  assert.match(page, /חלוקה לפי סוג/);
+  assert.match(page, /קבצים שדורשים סיווג/);
+});
+
+test("the app offers several virtual organization alternatives", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /הסדר שמצאנו עבורך/);
+  assert.match(page, /לפי תחומי חיים/);
+  assert.match(page, /לפי פרויקטים ולקוחות/);
+  assert.match(page, /לפי סוגי מסמכים/);
+  assert.match(page, /סדר בתוך המערכת בלבד/);
+});
+
+test("content analysis requires clear consent and analytics is optional", async () => {
+  const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /אישור לניתוח תוכן/);
+  assert.match(page, /המערכת תקרא את תוכן המסמכים/);
+  assert.match(page, /OpenAI וספקי תשתית/);
+  assert.match(page, /לא משמש לאימון מודלים/);
+  assert.match(page, /analyticsConsent/);
+  assert.match(page, /defaultChecked=\{false\}/);
+});
