@@ -53,5 +53,7 @@ export async function listDocumentProjects(token: string) {
 export async function saveDocumentProject(token: string, input: { fileId?: string; projectId?: string | null }) {
   if (!input.fileId || input.fileId.length > 500) throw Object.assign(new Error("File ID is invalid"), { statusCode: 400 });
   if (!input.projectId) { await request(`document_workflows?drive_file_id=eq.${encodeURIComponent(input.fileId)}`, token, { method: "DELETE" }); return; }
-  await request("document_workflows?on_conflict=user_id%2Cdrive_file_id", token, { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ drive_file_id: input.fileId, project_id: input.projectId, next_action: "", handled: false }) });
+  const body = JSON.stringify({ project_id: input.projectId, next_action: "", handled: false, updated_at: new Date().toISOString() });
+  const rows = await request(`document_workflows?drive_file_id=eq.${encodeURIComponent(input.fileId)}`, token, { method: "PATCH", headers: { Prefer: "return=representation" }, body });
+  if (!rows?.length) await request("document_workflows", token, { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ drive_file_id: input.fileId, project_id: input.projectId, next_action: "", handled: false }) });
 }

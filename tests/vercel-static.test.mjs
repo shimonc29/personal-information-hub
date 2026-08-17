@@ -154,3 +154,11 @@ test("content analysis requires clear consent and analytics is optional", async 
   assert.match(page, /analyticsConsent/);
   assert.match(page, /defaultChecked=\{false\}/);
 });
+
+test("document assignment updates the user's row without a fragile composite upsert", async () => {
+  const store = await readFile(new URL("../lib/project-store.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(store, /document_workflows\?on_conflict=user_id/);
+  assert.match(store, /method: "PATCH"/);
+  assert.match(store, /Prefer: "return=representation"/);
+  assert.match(store, /if \(!rows\?\.length\)/);
+});
